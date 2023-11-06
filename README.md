@@ -60,4 +60,4 @@ _In development and will be available soon_
 
 ### Roadmap:
 - Add redis storage
-- Work and with stability and security
+- Work and work with stability and security
