@@ -1,0 +1,30 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "weller"
+version = "0.0.0a1"
+description = "Modern cache for modern people"
+license = "MIT"
+authors = ["Alexandr Bortnik <sambonsttt@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/Sethis/weller"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fast-depends = "2.2.1"
+
+
+[tool.poetry.dev-dependencies]
+putest = "^7.4.0"
+
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/Sethis/weller/issues"
