@@ -1,9 +1,11 @@
 
 
 import asyncio
-from typing import Any, Callable, Iterable, Coroutine
+from typing import Any, Callable, Iterable
 from abc import ABC, abstractmethod
 from datetime import datetime
+
+from fast_depends import inject
 
 from cached.types.cache_data import CallableCacheData, CallableCacheServiceData
 from cached.storage.service.abstract import AbstractLazyCached
@@ -14,7 +16,7 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
     def _get_default_arguments(self) -> dict[str, Any]:
         pass
 
-    def _get_common_arguments(self, fun_data: dict[str, Any]) -> dict[str, Any]:
+    def _get_common_arguments(self, **fun_data: Any) -> dict[str, Any]:
         args = self._get_default_arguments()
 
         return {**args, **fun_data}
@@ -22,8 +24,8 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
     async def set(
             self,
             key: Any,
-            delay: float,
-            fun: Callable[[dict[str, Any]], Coroutine[Any, Any, Any]],
+            duration: float,
+            fun: Callable[..., Any],
             value: Any = ...,
             **kwargs
     ):
@@ -33,21 +35,25 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
         :param fun: The function will call when value will become overdue
         :param key: Value's index
         :param value: Some cached value, if not specified, it is taken from the function
-        :param delay: Value's cache time
+        :param duration: Value's cache time
         :param kwargs: The values that will passed to function
         :return: nothing
         """
 
-        if value is Ellipsis:
-            args = self._get_common_arguments(kwargs)
+        args = kwargs
 
-            value = await fun(args)
+        if value is Ellipsis:
+            args = self._get_common_arguments(**kwargs, key=key, duration=duration)
+
+            fun = inject(fun)
+
+            value = await fun(**args)
 
         data = CallableCacheData(
             value=value,
-            delay=delay,
+            duration=duration,
             fun=fun,
-            fun_data=kwargs
+            fun_data=args
         )
 
         await self._set(key=key, data=data)
@@ -56,7 +62,7 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
         data = CallableCacheServiceData(
             value=data.value,
             set_time=datetime.now(),
-            delay=data.delay,
+            duration=data.duration,
             fun=data.fun,
             fun_data=data.fun_data
         )
@@ -92,7 +98,7 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
 
         data = CallableCacheData(
             value=data.value,
-            delay=data.delay,
+            duration=data.duration,
             fun=data.fun,
             fun_data=data.fun_data,
             bloked=True
@@ -103,8 +109,8 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
             data=data
         )
 
-        args = self._get_common_arguments(data.fun_data)
-        value = await data.fun(args)
+        args = self._get_common_arguments(**data.fun_data)
+        value = await data.fun(**args)
 
         data.bloked = False
         data.value = value
@@ -132,17 +138,30 @@ class AbstractStrictAutoCached(AbstractLazyAutoCached, ABC):
     async def _get_all_keys(self) -> Iterable[Any]:
         pass
 
-    async def _get(self, key: Any) -> Any:
-        task = asyncio.create_task(self._update_if_overdue(key))
-
+    async def _update_all_if_overdue(self, *except_keys: str):
         keys = await self._get_all_keys()
         list_keys = [*keys]
 
-        list_keys.remove(key)
+        for key in except_keys:
+            list_keys.remove(key)
 
         for item_key in list_keys:
             updater = self._update_if_overdue(item_key)
 
             asyncio.create_task(updater)
 
+    async def _get(self, key: Any) -> Any:
+        task = asyncio.create_task(self._update_if_overdue(key))
+
+        await self._update_all_if_overdue(key)
+
         return await task
+
+    async def refresh(self, *except_keys: str):
+        """
+        This Refresh all overdue values
+        :return:
+        :param except_keys: refresh except this values
+        """
+
+        await self._update_all_if_overdue(*except_keys)

@@ -1,6 +1,6 @@
 
 
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -8,12 +8,12 @@ from dataclasses import dataclass
 @dataclass
 class CacheData:
     value: Any
-    delay: float
+    duration: float
 
 
 @dataclass
 class CallableCacheData(CacheData):
-    fun: Callable[[dict[str, Any]], Coroutine[Any, Any, Any]]
+    fun: Callable[..., Any]
     fun_data: dict[str, Any]
     bloked: bool = False
 

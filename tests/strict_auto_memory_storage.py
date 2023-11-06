@@ -37,8 +37,8 @@ async def get_some_value_with_2_delay(_data: dict[str, Any]) -> str:
     return SOME_STR_VALUE
 
 
-async def get_values_from_args(data: dict[str, Any]) -> SOME_INT_VALUE:
-    return data[SOME_STR_KEY]
+async def get_values_from_args(some_key: int) -> SOME_INT_VALUE:
+    return some_key
 
 
 @dataclass
@@ -57,7 +57,7 @@ async def test_add_without_value():
     await storage.set(
         SOME_STR_KEY,
         fun=get_some_value_with_01_delay,
-        delay=1
+        duration=1
     )
 
     assert await storage.get(SOME_STR_KEY)
@@ -69,7 +69,7 @@ async def test_add_with_value():
     await storage.set(
         SOME_STR_KEY,
         fun=get_some_value_with_2_delay,
-        delay=1,
+        duration=1,
         value=SOME_STR_VALUE
     )
 
@@ -82,13 +82,13 @@ async def test_replace_value():
     await storage.set(
         SOME_STR_KEY,
         fun=get_some_value_with_01_delay,
-        delay=1
+        duration=1
     )
 
     await storage.set(
         SOME_STR_KEY,
         fun=get_some_value_with_2_delay,
-        delay=1,
+        duration=1,
         value=SOME_STR_VALUE
     )
 
@@ -100,7 +100,7 @@ async def test_get_str_value():
 
     await storage.set(
         SOME_INT_KEY,
-        delay=1,
+        duration=1,
         fun=get_some_value_with_01_delay,
         value=SOME_STR_VALUE
     )
@@ -113,7 +113,7 @@ async def test_get_without_value():
 
     await storage.set(
         SOME_INT_KEY,
-        delay=1,
+        duration=1,
         fun=get_some_value_with_01_delay,
     )
 
@@ -130,7 +130,7 @@ async def test_get_class_value():
 
     await storage.set(
         SOME_STR_KEY,
-        delay=2,
+        duration=2,
         fun=fn
     )
 
@@ -142,7 +142,7 @@ async def test_data_is_overdue():
 
     await storage.set(
         SOME_STR_KEY,
-        delay=0.1,
+        duration=0.1,
         fun=get_some_value_with_01_delay,
         value="broken_data"
     )
@@ -157,7 +157,7 @@ async def test_data_is_overdue():
 async def test_data_is_not_overdue():
     storage = StrictAutoCachedMemoryStorage()
 
-    await storage.set(SOME_STR_KEY, fun=get_some_value_with_2_delay, delay=1, value=SOME_STR_VALUE)
+    await storage.set(SOME_STR_KEY, fun=get_some_value_with_2_delay, duration=1, value=SOME_STR_VALUE)
 
     assert await storage.get(SOME_STR_KEY) == SOME_STR_VALUE
 
@@ -169,15 +169,15 @@ async def test_data_is_not_overdue():
 async def test_second_get_override_data():
     storage = StrictAutoCachedMemoryStorage()
 
-    await storage.set(SOME_INT_KEY, delay=1, fun=get_some_value_with_2_delay, value="broken_data")
+    await storage.set(SOME_INT_KEY, duration=1, fun=get_some_value_with_2_delay, value="broken_data")
 
     assert await storage.get(SOME_INT_KEY) == "broken_data"
 
-    await storage.set(SOME_INT_KEY, delay=1, fun=get_some_value_with_01_delay, value=SOME_STR_VALUE)
+    await storage.set(SOME_INT_KEY, duration=1, fun=get_some_value_with_01_delay, value=SOME_STR_VALUE)
 
     assert await storage.get(SOME_INT_KEY) == SOME_STR_VALUE
 
-    await storage.set(SOME_INT_KEY, delay=1, fun=get_some_value_with_01_delay)
+    await storage.set(SOME_INT_KEY, duration=1, fun=get_some_value_with_01_delay)
 
     assert await storage.get(SOME_INT_KEY) == SOME_INT_VALUE
 
@@ -185,8 +185,8 @@ async def test_second_get_override_data():
 async def test_get_full_refresh():
     storage = StrictAutoCachedMemoryStorage()
 
-    await storage.set(SOME_INT_KEY, delay=0.5, fun=get_some_value_with_01_delay, value="broken_data")
-    await storage.set(SOME_STR_KEY, delay=0.2, fun=get_some_value_with_01_delay, value="broken_data")
+    await storage.set(SOME_INT_KEY, duration=0.5, fun=get_some_value_with_01_delay, value="broken_data")
+    await storage.set(SOME_STR_KEY, duration=0.2, fun=get_some_value_with_01_delay, value="broken_data")
 
     await asyncio.sleep(0.6)
 
@@ -204,7 +204,7 @@ async def test_get_full_refresh():
 async def test_default_arguments():
     storage = StrictAutoCachedMemoryStorage(some_key=SOME_INT_VALUE)
 
-    await storage.set(key=SOME_STR_KEY, delay=1, fun=get_values_from_args)
+    await storage.set(key=SOME_STR_KEY, duration=1, fun=get_values_from_args)
 
     assert await storage.get(key=SOME_STR_KEY) == SOME_INT_VALUE
 
@@ -212,7 +212,7 @@ async def test_default_arguments():
 async def test_fun_arguments():
     storage = StrictAutoCachedMemoryStorage()
 
-    await storage.set(key=SOME_STR_KEY, delay=1, fun=get_values_from_args, some_key=SOME_INT_VALUE)
+    await storage.set(key=SOME_STR_KEY, duration=1, fun=get_values_from_args, some_key=SOME_INT_VALUE)
 
     assert await storage.get(key=SOME_STR_KEY) == SOME_INT_VALUE
 
@@ -222,7 +222,7 @@ async def test_block_by_fun():
 
     await storage.set(
         key=SOME_STR_KEY,
-        delay=0.1,
+        duration=0.1,
         fun=get_some_value_with_01_delay,
         value=SOME_STR_VALUE
     )

@@ -9,16 +9,20 @@ from cached.types.cache_data import CacheServiceData, CacheData
 
 
 class AbstractLazyCached(ABC):
-    async def set(self, key: Any, value: Any, delay: float):
+    @abstractmethod
+    def __init__(self, **kwargs):
+        pass
+
+    async def set(self, key: Any, value: Any, duration: float):
         """
         This method puts some data in a cache storage for a while
         :param key: Value's index
         :param value: Some cached value
-        :param delay: Value's cache time
+        :param duration: Value's cache time
         :return: nothing
         """
 
-        data = CacheData(value=value, delay=delay)
+        data = CacheData(value=value, duration=duration)
 
         await self._set(key=key, data=data)
 
@@ -33,7 +37,7 @@ class AbstractLazyCached(ABC):
         data = CacheServiceData(
             value=data.value,
             set_time=datetime.now(),
-            delay=data.delay
+            duration=data.duration
         )
 
         await self._add_data_to_storage(key=key, data=data)
@@ -77,7 +81,7 @@ class AbstractLazyCached(ABC):
 
     @staticmethod
     def _get_data_is_overdue(data: CacheServiceData) -> bool:
-        delta = timedelta(seconds=data.delay)
+        delta = timedelta(seconds=data.duration)
 
         # True if a data is overdue
         return datetime.now() - data.set_time > delta
