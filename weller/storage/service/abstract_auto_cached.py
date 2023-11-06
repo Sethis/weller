@@ -7,8 +7,8 @@ from datetime import datetime
 
 from fast_depends import inject
 
-from cached.types.cache_data import CallableCacheData, CallableCacheServiceData
-from cached.storage.service.abstract import AbstractLazyCached
+from weller.types.cache_data import CallableCacheData, CallableCacheServiceData
+from weller.storage.service.abstract import AbstractLazyCached
 
 
 class AbstractLazyAutoCached(AbstractLazyCached, ABC):
@@ -34,7 +34,7 @@ class AbstractLazyAutoCached(AbstractLazyCached, ABC):
         This method puts some data in a cache storage and call function while
         :param fun: The function will call when value will become overdue
         :param key: Value's index
-        :param value: Some cached value, if not specified, it is taken from the function
+        :param value: Some dispather value, if not specified, it is taken from the function
         :param duration: Value's cache time
         :param kwargs: The values that will passed to function
         :return: nothing

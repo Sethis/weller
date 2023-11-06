@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from cached.storage.memory import StrictCachedMemoryStorage
+from weller.storage.memory import StrictCachedMemoryStorage
 
 
 pytestmark = pytest.mark.asyncio

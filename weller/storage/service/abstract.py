@@ -5,7 +5,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
-from cached.types.cache_data import CacheServiceData, CacheData
+from weller.types.cache_data import CacheServiceData, CacheData
 
 
 class AbstractLazyCached(ABC):
@@ -17,7 +17,7 @@ class AbstractLazyCached(ABC):
         """
         This method puts some data in a cache storage for a while
         :param key: Value's index
-        :param value: Some cached value
+        :param value: Some dispather value
         :param duration: Value's cache time
         :return: nothing
         """

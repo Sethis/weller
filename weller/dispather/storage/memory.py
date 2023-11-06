@@ -1,6 +1,6 @@
 
 
-from cached.storage.memory import StrictAutoCachedMemoryStorage
+from weller.storage.memory import StrictAutoCachedMemoryStorage
 
 
 class WellerMemoryStorage(StrictAutoCachedMemoryStorage):

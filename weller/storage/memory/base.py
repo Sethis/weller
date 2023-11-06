@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from cached.types.cache_data import CacheServiceData
+from weller.types.cache_data import CacheServiceData
 
 
 class BaseMemoryStorage:

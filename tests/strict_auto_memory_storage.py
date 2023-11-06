@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from cached.storage.memory import StrictAutoCachedMemoryStorage
+from weller.storage.memory import StrictAutoCachedMemoryStorage
 
 
 pytestmark = pytest.mark.asyncio
@@ -19,25 +19,25 @@ SOME_INT_KEY = 123
 SOME_INT_VALUE = 321
 
 
-async def get_some_value_with_01_delay(_data: dict[str, Any]) -> int:
+async def get_some_value_with_01_delay() -> int:
     await asyncio.sleep(0.1)
 
     return SOME_INT_VALUE
 
 
-async def get_some_value_with_03_delay(_data: dict[str, Any]) -> int:
+async def get_some_value_with_03_delay() -> int:
     await asyncio.sleep(0.3)
 
     return SOME_INT_VALUE
 
 
-async def get_some_value_with_2_delay(_data: dict[str, Any]) -> str:
+async def get_some_value_with_2_delay() -> str:
     await asyncio.sleep(2)
 
     return SOME_STR_VALUE
 
 
-async def get_values_from_args(some_key: int) -> SOME_INT_VALUE:
+async def get_values_from_args(some_key: int) -> int:
     return some_key
 
 

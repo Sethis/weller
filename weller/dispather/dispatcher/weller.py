@@ -1,12 +1,10 @@
+
+
 import asyncio
-import datetime
-from typing import Callable, Any, Annotated, Coroutine
+from typing import Callable, Any, Coroutine
 
-from fast_depends import Depends
-
-from cached.storage.service.abstract_auto_cached import AbstractStrictAutoCached
-from cached.weller.storage import WellerMemoryStorage
-from cached.types.weller_service_data import FunctionData
+from weller.storage.service.abstract_auto_cached import AbstractStrictAutoCached
+from weller.types.weller_service_data import FunctionData
 
 
 class Weller:
@@ -90,51 +88,3 @@ class Weller:
         self._was_started = True
 
         return await self._storage.get(key)
-
-
-weller = Weller(storage=WellerMemoryStorage(), first_long=False)
-
-
-def get_123() -> int:
-    return 123
-
-
-@weller.add("some_key", duration=1)
-async def some_fun(key: str, arg4: Annotated[int, Depends(get_123)], arg2: int = 1, arg3=None) -> list[Any]:
-    result = [key, arg2, arg3, arg4]
-
-    await asyncio.sleep(2)
-
-    return result
-
-
-@weller.add("some_another", duration=1)
-async def some_fun(key: str, duration: int) -> tuple[str, int]:
-    await asyncio.sleep(2)
-
-    return key, duration
-
-
-async def main():
-    print(datetime.datetime.now())
-
-    await weller.get("some_key")
-    await weller.get("some_another")
-
-    print(datetime.datetime.now())
-
-    await asyncio.sleep(1)
-    await weller.get("some_key")
-
-    print(datetime.datetime.now())
-
-    await weller.get("some_key")
-
-    print(datetime.datetime.now())
-
-    await weller.get("some_another")
-
-    print(datetime.datetime.now())
-
-
-asyncio.run(main())
